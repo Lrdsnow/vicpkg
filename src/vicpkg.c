@@ -176,7 +176,7 @@ void load_repositories(VicPkgContext *ctx) {
         ctx->repo_priority[0] = 0;
         ctx->repos[1] = strdup("https://raw.githubusercontent.com/Lrdsnow/snowypurplpkgrepo/refs/heads/main");
         ctx->repo_priority[1] = 0;
-        ctx->repos[2] = strdup("https://raw.githubusercontent.com/lrdsnow/vicpkg-repo/main");
+        ctx->repos[2] = strdup("https://raw.githubusercontent.com/Lrdsnow/vicpkg/refs/heads/main/repo");
         ctx->repo_priority[2] = 100;
         ctx->repo_count = 3;
   }
