@@ -1,0 +1,9 @@
+Architectures: vicpkg
+Codename: vicpkg
+Components: main
+Date: Wed, 25 Feb 2026 15:35:05 +0000
+Description: VicPkg
+Label: VicPkg
+Origin: VicPkg
+Suite: stable
+Version: 1.0

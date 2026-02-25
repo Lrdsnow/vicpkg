@@ -1,0 +1,11 @@
+Package: vicpkg
+Architecture: vicpkg
+Version: 1.0.0
+Section: Package Manager
+Maintainer: Lrdsnow
+Conflicts: vicpkg.testing
+Filename: ./vicpkg/vicpkg.vpkg
+Size: 15754
+Description: silly pkg
+Name: VicPkg
+Author: Lrdsnow
