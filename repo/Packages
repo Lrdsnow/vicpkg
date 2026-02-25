@@ -11,7 +11,7 @@ Name: VicPkg
 Author: Lrdsnow
 
 Package: viccyaudio
-Architecture: viccyaudio
+Architecture: vicpkg
 Version: 1.0.0
 Maintainer: Lrdsnow
 Conflicts: viccyaudio.testing
@@ -24,7 +24,7 @@ Depends-OS: viccyware
 Depends-OS-Version: 0.7.0.2
 
 Package: ffmpeg
-Architecture: ffmpeg
+Architecture: vicpkg
 Version: 8.0.1
 Conflicts: ffmpeg.testing
 Filename: ./vicpkg/ffmpeg.vpkg
