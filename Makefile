@@ -17,19 +17,19 @@ $(TARGET): $(SRC)
 	$(STRIP) $(TARGET)
 
 clean:
-	rm -f $(TARGET) vicpkg.vpkg
+	rm -f $(TARGET) $(TARGET).vpkg
 
 install: $(TARGET)
-	scp $(TARGET) root@vector:/data/vicpkg/bin/
+	scp $(TARGET) root@vector:/data/vicpkg/bin/$(TARGET)
 
 package: $(TARGET)
-	@mkdir -p /tmp/vicpkg-build
-	@cp -r src/Package/* /tmp/vicpkg-build/
-	@mkdir -p /tmp/vicpkg-build/pkg/data/vicpkg/bin
-	@cp $(TARGET) /tmp/vicpkg-build/pkg/data/vicpkg/bin/
-	@cd /tmp/vicpkg-build && tar -czf vicpkg.vpkg *
-	@mv /tmp/vicpkg-build/vicpkg.vpkg .
-	@rm -rf /tmp/vicpkg-build
-	@echo "Package created: vicpkg.vpkg"
+	@mkdir -p /tmp/$(TARGET)-build
+	@cp -r src/Package/* /tmp/$(TARGET)-build/
+	@mkdir -p /tmp/$(TARGET)-build/pkg/data/vicpkg/bin
+	@cp $(TARGET) /tmp/$(TARGET)-build/pkg/data/vicpkg/bin/
+	@cd /tmp/$(TARGET)-build && tar -czf $(TARGET).vpkg *
+	@mv /tmp/$(TARGET)-build/$(TARGET).vpkg .
+	@rm -rf /tmp/$(TARGET)-build
+	@echo "Package created: $(TARGET).vpkg"
 
 .PHONY: all clean install package
