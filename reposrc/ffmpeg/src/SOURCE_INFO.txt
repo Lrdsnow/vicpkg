@@ -1,0 +1,34 @@
+This package contains FFmpeg.
+
+Upstream source:
+https://ffmpeg.org
+https://git.ffmpeg.org/ffmpeg.git
+
+Built from FFmpeg snapshot:
+ffmpeg-N-122985-g145f6e5878
+
+Snapshot SHA256:
+703b05c44f60a9d09dd8742f4d797ffb19e843423da6e90bb713da4f495eb731
+
+Configure flags:
+./configure \
+  --enable-cross-compile \
+  --cross-prefix=arm-oe-linux-gnueabi- \
+  --arch=arm \
+  --target-os=linux \
+  --sysroot=$VICOS_SDK/sysroot \
+  --extra-cflags="-march=armv7-a" \
+  --cc=arm-oe-linux-gnueabi-clang \
+  --cxx=arm-oe-linux-gnueabi-clang++ \
+  --disable-stripping \
+  --enable-small \
+  --disable-doc \
+  --disable-htmlpages \
+  --disable-manpages \
+  --disable-podpages \
+  --disable-txtpages
+
+No modifications were made to the FFmpeg source code.
+
+FFmpeg is licensed under the GNU Lesser General Public License
+version 2.1 or later. A copy of the license is included with this package.

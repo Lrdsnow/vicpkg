@@ -20,7 +20,7 @@ clean:
 	rm -f $(TARGET) vicpkg.vpkg
 
 install: $(TARGET)
-	scp $(TARGET) root@vector:/anki/bin/
+	scp $(TARGET) root@vector:/data/vicpkg/bin/
 
 package: $(TARGET)
 	@mkdir -p /tmp/vicpkg-build

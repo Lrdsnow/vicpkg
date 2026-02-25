@@ -41,6 +41,8 @@ typedef struct {
   char name[256];
   long size;
   int is_legacy;
+  char depends_os[64];
+  char depends_os_version[64];
 } PackageInfo;
 
 void set_cpu_freq(const char *freq) {
@@ -67,6 +69,61 @@ char *exec_command(const char *cmd) {
   }
   pclose(fp);
   return NULL;
+}
+
+char *get_os_name() {
+  char *result = exec_command("getprop ro.build.os.cfw.name 2>/dev/null");
+  if (!result || strlen(result) == 0) {
+    return "vicos";
+  }
+  
+  static char os_name[64];
+  if (strstr(result, "Viccyware")) {
+    strcpy(os_name, "viccyware");
+  } else if (strstr(result, "wire-os")) {
+    strcpy(os_name, "wireos");
+  } else if (strstr(result, "purplOS")) {
+    strcpy(os_name, "purplos");
+  } else {
+    strcpy(os_name, "vicos");
+  }
+  
+  return os_name;
+}
+
+char *get_os_version() {
+  char *result = exec_command("getprop ro.anki.version 2>/dev/null");
+  if (!result) {
+    return "0.0.0.0";
+  }
+  
+  static char version[64];
+  strncpy(version, result, sizeof(version) - 1);
+  version[sizeof(version) - 1] = '\0';
+  
+  char *src = version;
+  char *dst = version;
+  while (*src) {
+    if (isdigit(*src) || *src == '.') {
+      *dst++ = *src;
+    }
+    src++;
+  }
+  *dst = '\0';
+  
+  return version;
+}
+
+int compare_versions(const char *v1, const char *v2) {
+  int n1[4] = {0}, n2[4] = {0};
+  sscanf(v1, "%d.%d.%d.%d", &n1[0], &n1[1], &n1[2], &n1[3]);
+  sscanf(v2, "%d.%d.%d.%d", &n2[0], &n2[1], &n2[2], &n2[3]);
+  
+  for (int i = 0; i < 4; i++) {
+    if (n1[i] < n2[i]) return -1;
+    if (n1[i] > n2[i]) return 1;
+  }
+  return 0;
 }
 
 void ensure_path_configured() {
@@ -682,6 +739,32 @@ int download_file(const char *url, const char *output) {
   return system(cmd) == 0;
 }
 
+int check_os_dependency(const PackageInfo *info) {
+  if (info->depends_os[0] == '\0') {
+    return 1;
+  }
+  
+  char *current_os = get_os_name();
+  
+  if (strcmp(info->depends_os, current_os) != 0) {
+    printf("ERROR: Package requires OS '%s' but current OS is '%s'\n", 
+           info->depends_os, current_os);
+    return 0;
+  }
+  
+  if (info->depends_os_version[0] != '\0') {
+    char *current_version = get_os_version();
+    
+    if (compare_versions(current_version, info->depends_os_version) < 0) {
+      printf("ERROR: Package requires OS version %s or higher, but current version is %s\n",
+             info->depends_os_version, current_version);
+      return 0;
+    }
+  }
+  
+  return 1;
+}
+
 int parse_packages_file(const char *packages_file, const char *package_name,
                         PackageInfo *info) {
   FILE *f = fopen(packages_file, "r");
@@ -733,6 +816,10 @@ int parse_packages_file(const char *packages_file, const char *package_name,
         strncpy(info->name, value, sizeof(info->name) - 1);
       } else if (strcmp(key, "Size") == 0) {
         info->size = atol(value);
+      } else if (strcmp(key, "Depends-OS") == 0) {
+        strncpy(info->depends_os, value, sizeof(info->depends_os) - 1);
+      } else if (strcmp(key, "Depends-OS-Version") == 0) {
+        strncpy(info->depends_os_version, value, sizeof(info->depends_os_version) - 1);
       }
     }
   }
@@ -1186,6 +1273,14 @@ int cmd_show(VicPkgContext *ctx, const char *package) {
   if (info.description[0] != '\0') {
     printf("Description: %s\n", info.description);
   }
+  
+  if (info.depends_os[0] != '\0') {
+    printf("Depends-OS: %s", info.depends_os);
+    if (info.depends_os_version[0] != '\0') {
+      printf(" (>= %s)", info.depends_os_version);
+    }
+    printf("\n");
+  }
 
   char version_file[MAX_PATH];
   snprintf(version_file, sizeof(version_file), "%s/%s", VERSIONS_DIR, package);
@@ -1390,7 +1485,6 @@ int cmd_install_package(VicPkgContext *ctx, const char *package) {
   snprintf(version_file, sizeof(version_file), "%s/%s", VERSIONS_DIR, package);
   int is_installed = (access(version_file, F_OK) == 0);
 
-  
   if (try_find_package_in_cache(ctx, package, &info)) {
     found = 1;
     if (verbose_mode) {
@@ -1398,7 +1492,6 @@ int cmd_install_package(VicPkgContext *ctx, const char *package) {
     }
   }
 
-  
   if (!found) {
     for (int i = 0; i < ctx->repo_count; i++) {
       if (verbose_mode) {
@@ -1418,6 +1511,10 @@ int cmd_install_package(VicPkgContext *ctx, const char *package) {
   if (!found) {
     printf("Package %s not found in any repository.\n", package);
     printf("Try running 'vicpkg update' first.\n");
+    return 1;
+  }
+
+  if (!check_os_dependency(&info)) {
     return 1;
   }
 
@@ -1501,7 +1598,6 @@ int cmd_install_package(VicPkgContext *ctx, const char *package) {
     return 1;
   }
 
-  
   if (info.is_legacy) {
     char version_tmp[MAX_PATH];
     char flist_tmp[MAX_PATH];
