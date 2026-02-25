@@ -1688,7 +1688,7 @@ int main(int argc, char *argv[]) {
     result = cmd_add_repo(&ctx, argv[arg_start + 1]);
   } else if (strcmp(action, "repo-remove") == 0 && arg_start + 1 < argc) {
     result = cmd_remove_repo(&ctx, argv[arg_start + 1]);
-  } else if (strcmp(action, "remove") == 0 && arg_start + 1 < argc) {
+  } else if (strcmp(action, "purge") == 0 && arg_start + 1 < argc) {
     for (int i = arg_start + 1; i < argc; i++) {
       if (argv[i][0] != '-') {
         if (cmd_remove_package(argv[i]) != 0) {
